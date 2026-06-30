@@ -1,4 +1,51 @@
 {
+    "examples_create_issue": [
+        {
+            "input": "<description>\nUsers cannot log in because the login button does nothing on mobile Safari.\n</description>",
+            "output": "<summary>\nLogin button does not work on mobile Safari\n</summary>\n\n<description>\nUsers are unable to log in on mobile Safari because tapping the login button does not trigger any action. This prevents affected users from accessing the application.\n</description>\n\n<work_type>\nBug\n</work_type>"
+        },
+        {
+            "input": "<description>\nAdd a dashboard filter so users can view tickets by priority.\n</description>",
+            "output": "<summary>\nAdd priority filter to ticket dashboard\n</summary>\n\n<description>\nUsers need a dashboard filter that allows them to view Jira tickets by priority so they can focus on high-priority work first.\n</description>\n\n<work_type>\nStory\n</work_type>"
+        },
+        {
+            "input": "<description>\nCreate API documentation for the Jira MCP server endpoints.\n</description>",
+            "output": "<summary>\nCreate API documentation for Jira MCP server\n</summary>\n\n<description>\nDocument the available Jira MCP server endpoints, request payloads, response formats, authentication requirements, and example usage.\n</description>\n\n<work_type>\nSetup Jira MCP Server\n</work_type>"
+        },
+        {
+            "input": "<description>\nSupport OpenRouter models in addition to local Ollama models.\n</description>",
+            "output": "<summary>\nAdd OpenRouter model provider support\n</summary>\n\n<description>\nAllow users to configure and use OpenRouter models as an alternative to local Ollama models for LLM-powered Jira workflows.\n</description>\n\n<work_type>\nFeature\n</work_type>"
+        },
+        {
+            "input": "<description>\nI need help resetting my Jira API token because authentication keeps failing.\n</description>",
+            "output": "<summary>\nHelp reset Jira API token\n</summary>\n\n<description>\nThe user needs assistance resetting their Jira API token because authentication attempts are failing.\n</description>\n\n<work_type>\nRequest\n</work_type>"
+        },
+        {
+            "input": "<description>\nBuild the full Jira automation assistant with ticket creation, triage, linking, and transition support.\n</description>",
+            "output": "<summary>\nBuild Jira automation assistant\n</summary>\n\n<description>\nCreate a complete Jira automation assistant that supports ticket creation, ticket triage, related ticket linking, and issue workflow transitions.\n</description>\n\n<work_type>\nEpic\n</work_type>"
+        },
+        {
+            "input": "<description>\nSet up the Jira MCP server so it can connect to Atlassian Cloud using API token authentication.\n</description>",
+            "output": "<summary>\nSet up Jira MCP server authentication\n</summary>\n\n<description>\nConfigure the Jira MCP server to connect to Atlassian Cloud using API token authentication and validate that authenticated requests work correctly.\n</description>\n\n<work_type>\nSetup Jira MCP Server\n</work_type>"
+        },
+        {
+            "input": "<description>\nThe issue retrieval endpoint returns 403 Forbidden when I try to fetch SCRUM tickets.\n</description>",
+            "output": "<summary>\nIssue retrieval endpoint returns 403 Forbidden\n</summary>\n\n<description>\nFetching SCRUM issues through the issue retrieval endpoint fails with a 403 Forbidden response. Investigate permissions, authentication, and Jira API request configuration.\n</description>\n\n<work_type>\nBug\n</work_type>"
+        },
+        {
+            "input": "<description>\nAs a project manager, I want AI-generated acceptance criteria for Jira tickets.\n</description>",
+            "output": "<summary>\nGenerate acceptance criteria for Jira tickets\n</summary>\n\n<description>\nProject managers need the AI assistant to generate clear acceptance criteria for Jira tickets so engineering teams have better implementation guidance.\n</description>\n\n<work_type>\nStory\n</work_type>"
+        },
+        {
+            "input": "<description>\nAdd unit tests for ticket key extraction from natural language messages.\n</description>",
+            "output": "<summary>\nAdd tests for ticket key extraction\n</summary>\n\n<description>\nAdd unit tests to verify that Jira ticket keys such as SCRUM-5 are correctly extracted from natural language user messages.\n</description>\n\n<work_type>\nSetup Jira MCP Server\n</work_type>"
+        },
+        {
+            "input": "<description>\nCreate a chatbot UI for the Jira agent.\n</description>",
+            "output": "<summary>\nCreate chatbot UI for Jira agent\n</summary>\n\n<description>\nBuild a chatbot-style frontend that allows users to interact with the Jira agent using natural language messages.\n</description>\n\n<work_type>\nFeature\n</work_type>"
+        }
+    ],
+
     "examples_product": [
         {
             "input": "<description>Production outage: API gateway returning 503 for all requests The API gateway is currently returning 503 errors for all incoming requests across all services. This started 10 minutes ago and is affecting all customers.</description>",

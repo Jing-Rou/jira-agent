@@ -1,8 +1,5 @@
-import json
 import mcp.types as types
-
-from dotenv import load_dotenv
-from app.server import (
+from jiraToolWrapper.server import (
     mcp,
     jira,
 )
@@ -25,14 +22,22 @@ async def create_issue_link(
         Returns:
             None
     """
-    
-    result = await jira.create_issue_link(
-        inward_issue_key,
-        outward_issue_key,
-        link_type
-    )
 
-    print(json.dumps(json.loads(result.text), sort_keys=True, indent=4, separators=(",", ": ")))
+    payload = {
+        "type": {
+            "name": link_type
+        },
+        "inwardIssue": {
+            "key": inward_issue_key
+        },
+        "outwardIssue": {
+            "key": outward_issue_key
+        }
+    }
+
+    result = await jira.create_issue_link(payload)
+
+    # print(json.dumps(json.loads(result.text), sort_keys=True, indent=4, separators=(",", ": ")))
 
 
 

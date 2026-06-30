@@ -1,2 +1,21 @@
+# --- secrets, never commit ---
 .env
-\__pycache__
+
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+db.sqlite3
+jiraAgent/model/30_prompts.json
+
+# --- Node / frontend ---
+frontend/node_modules/
+frontend/dist/
+
+# --- logs ---
+jiraAgent/jiraToolWrapper/logs/*.log
+*.log
+
+# --- lock/build artifacts that are environment-specific ---
+frontend/vite.err.log
+frontend/vite.out.log

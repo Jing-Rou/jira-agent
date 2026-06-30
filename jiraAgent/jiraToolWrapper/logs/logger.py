@@ -11,7 +11,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s [jira-mcp-server] %(message)s",
     handlers=[
-        logging.FileHandler("logs/jira_mcp_server.log",  mode="a"),
+        logging.FileHandler("app/logs/jira_mcp_server.log",  mode="a"),
         logging.StreamHandler() #  print log to terminal as well to log file
     ],
 )
