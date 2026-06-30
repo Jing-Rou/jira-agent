@@ -375,3 +375,36 @@ pre {
   .message-row.user .bubble { grid-column: 2; }
   .avatar { width: 32px; height: 32px; }
 }
+
+.draft-preview {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px dashed #1f6feb;
+  border-radius: 8px;
+  background: #f2f7ff;
+}
+
+.draft-preview p { margin: 0 0 6px; font-size: 13px; }
+
+.draft-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.draft-actions button {
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.draft-actions button:first-child {
+  color: #ffffff;
+  background: #1f6feb;
+}
+
+.draft-actions button:last-child {
+  color: #344256;
+  background: #e8eef6;
+}

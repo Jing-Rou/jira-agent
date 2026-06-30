@@ -8,5 +8,6 @@ urlpatterns = [
     path('health-check/', views.HealthCheck.as_view()),
     path('get-records/', views.GetRecords.as_view()),
     path('jira-agent/', views.JiraAgentApiView.as_view()),
+    path('triage-jira-ticket/', views.TriageJiraTicket.as_view()),
     path('', include(router.urls))
 ]

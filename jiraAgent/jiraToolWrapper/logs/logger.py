@@ -5,13 +5,13 @@ import logging
 #                                    CONFIGURE LOGS 
 # ======================================================================================
 # ensure the logs directory exists
-os.makedirs("app/logs", exist_ok=True)
+os.makedirs("jiraToolWrapper/logs", exist_ok=True)
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s [jira-mcp-server] %(message)s",
     handlers=[
-        logging.FileHandler("app/logs/jira_mcp_server.log",  mode="a"),
+        logging.FileHandler("jiraToolWrapper/logs/jira_mcp_server.log",  mode="a"),
         logging.StreamHandler() #  print log to terminal as well to log file
     ],
 )

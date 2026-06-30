@@ -153,11 +153,17 @@ def draft_issue(user_request: str):
     description = extract_tag(result, "description") or ''
     work_type   = extract_tag(result, "work_type") or ''
     
+    return {
+        "summary": summary,
+        "description": description,
+        "work_type": work_type
+    }
+
+def confirmed_create_issue(summary, description, work_type):
     # actually create the ticket in Jira
     created = asyncio.run(
         create_issue(summary, description, work_type)
     )
-
     ticket_key = created.get("key")
 
     return ticket_key

@@ -38,12 +38,13 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [recordsLoading, setRecordsLoading] = useState(false);
   const scrollRef = useRef(null);
+  const [pendingDraft, setPendingDraft] = useState(null);
 
   async function checkHealth() {
     try {
       const response = await fetch("/triage/health-check/");
       const data = await response.json();
-      setHealth(response.ok ? data.message ?? "OK" : "error");
+      setHealth(response.ok ? data.message ?? "ONLINE" : "error");
     } catch {
       setHealth("offline");
     }
@@ -63,8 +64,10 @@ export default function App() {
   }
 
   async function sendMessage(event) {
+    // stops the browser's default behavior of refreshing the whole page when a form is submitted
     event?.preventDefault();
     const trimmed = message.trim();
+    //  If the box is empty, or if a request is already in progress, it stops here and does nothing
     if (!trimmed || loading) return;
 
     const userMessage = {
@@ -86,22 +89,36 @@ export default function App() {
       });
       const data = await response.json();
 
-      const assistantText = response.ok
-        ? data.output || "Task completed."
-        : data.error || data.request?.[0] || "The agent could not complete that request.";
+      if (response.ok && data.type === "issue_draft") {
+        // store the draft, don't treat it as a finished message
+        setPendingDraft(data.draft);
 
-      setMessages((current) => [
-        ...current,
-        {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          text: assistantText,
-          time: nowLabel(),
-          error: !response.ok,
-        },
-      ]);
+        setMessages((current) => [
+          ...current,
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            text: data.output,
+            time: nowLabel(),
+            draft: data.draft,   // attach the draft to this specific message
+          },
+        ]);
+      } else {
+        const assistantText = response.ok
+          ? data.output || "Task completed."
+          : data.error || data.request?.[0] || "The agent could not complete that request.";
 
-      if (response.ok) await loadRecords();
+        setMessages((current) => [
+          ...current,
+          { id: crypto.randomUUID(), 
+            role: "assistant", 
+            text: assistantText, 
+            time: nowLabel(), 
+            error: !response.ok },
+        ]);
+
+        if (response.ok) await loadRecords();
+      }
     } catch (err) {
       setMessages((current) => [
         ...current,
@@ -116,6 +133,52 @@ export default function App() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function confirmCreateIssue(draft) {
+    setLoading(true);
+    try {
+      const response = await fetch("/triage/triage-jira-ticket/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(draft),
+      });
+      const data = await response.json();
+
+      const assistantText = response.ok
+        ? data.output || `Created ${data.ticket_key}.`
+        : data.error || "Could not create the issue.";
+
+      setMessages((current) => [
+        ...current,
+        { id: crypto.randomUUID(), 
+          role: "assistant", 
+          text: assistantText, 
+          time: nowLabel(), 
+          error: !response.ok },
+      ]);
+
+      setPendingDraft(null);
+      if (response.ok) await loadRecords();
+    } catch (err) {
+      setMessages((current) => [
+        ...current,
+        { id: crypto.randomUUID(), role: "assistant", text: err.message || "Could not reach the Django API.", time: nowLabel(), error: true },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function cancelDraft() {
+    setPendingDraft(null);
+    setMessages((current) => [
+      ...current,
+      { id: crypto.randomUUID(), 
+        role: "assistant", 
+        text: "Okay, I won't create that ticket.", 
+        time: nowLabel() },
+    ]);
   }
 
   function useSuggestion(text) {
@@ -207,6 +270,24 @@ export default function App() {
                     <time><Clock3 size={12} /> {item.time}</time>
                   </div>
                   <pre>{item.text}</pre>
+                    {item.draft && (
+                    <div className="draft-preview">
+                      <p><strong>Summary:</strong> {item.draft.summary}</p>
+                      <p><strong>Type:</strong> {item.draft.work_type}</p>
+                      <p><strong>Description:</strong> {item.draft.description}</p>
+
+                      {pendingDraft === item.draft && (
+                        <div className="draft-actions">
+                          <button type="button" onClick={() => confirmCreateIssue(item.draft)} disabled={loading}>
+                            Confirm & Create
+                          </button>
+                          <button type="button" onClick={cancelDraft} disabled={loading}>
+                            Cancel
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

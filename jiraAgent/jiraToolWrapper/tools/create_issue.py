@@ -11,7 +11,6 @@ async def create_issue(
     work_type: str,
 ):
     
-    print(f"summary: {summary}")
     # wrap plain string into ADF format Jira Cloud v3 expects
     payload = {
         "fields": {
