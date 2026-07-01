@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Bot, Clock3, Loader2, MessageSquareText, RefreshCcw, Send, Server, Sparkles, UserRound } from "lucide-react";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+
+function apiUrl(path) {
+  return `${API_BASE_URL}${path}`;
+}
+
 const suggestions = [
   "Triage SCRUM-5",
   "Triage SCRUM-10",
@@ -42,7 +48,7 @@ export default function App() {
 
   async function checkHealth() {
     try {
-      const response = await fetch("/triage/health-check/");
+      const response = await fetch(apiUrl("/triage/health-check/"));
       const data = await response.json();
       setHealth(response.ok ? data.message ?? "ONLINE" : "error");
     } catch {
@@ -53,7 +59,7 @@ export default function App() {
   async function loadRecords() {
     setRecordsLoading(true);
     try {
-      const response = await fetch("/triage/get-records/");
+      const response = await fetch(apiUrl("/triage/get-records/"));
       const data = await response.json();
       setRecords(parseRecords(data));
     } catch {
@@ -82,7 +88,7 @@ export default function App() {
     setLoading(true);
 
     try {
-      const response = await fetch("/triage/jira-agent/", {
+      const response = await fetch(apiUrl("/triage/jira-agent/"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ request: trimmed }),
@@ -138,7 +144,7 @@ export default function App() {
   async function confirmCreateIssue(draft) {
     setLoading(true);
     try {
-      const response = await fetch("/triage/triage-jira-ticket/", {
+      const response = await fetch(apiUrl("/triage/triage-jira-ticket/"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(draft),
