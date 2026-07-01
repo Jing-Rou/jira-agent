@@ -2,6 +2,7 @@ import os
 import re
 import json
 import asyncio
+from wsgiref import headers
 import requests
 import concurrent.futures
 
@@ -60,11 +61,17 @@ class LLM_Model():
             },
         }
 
+        headers = {}
+
+        if api_key := os.getenv("OLLAMA_API_KEY"):
+            headers["Authorization"] = f"Bearer {api_key}"
+
         # send out the HTTP POST request with streaming enabled
         response = requests.post(
             f"{self.base_url}/api/chat", 
             json=payload, 
             timeout=120,
+            headers=headers
             )
 
         response.raise_for_status()

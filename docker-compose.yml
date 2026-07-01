@@ -1,0 +1,27 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    container_name: jira-agent-backend
+    env_file:
+      - ./jiraAgent/.env
+    environment:
+      DJANGO_DEBUG: "True"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0,backend"
+      # If Ollama runs on your Windows host, containers must use host.docker.internal.
+      LLM_BASE_URL: "http://host.docker.internal:11434"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./jiraAgent/db.sqlite3:/app/db.sqlite3
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    container_name: jira-agent-frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"

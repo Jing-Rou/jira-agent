@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: jira-agent-backend:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: jira-agent-config
+            - secretRef:
+                name: jira-agent-secret
+          readinessProbe:
+            httpGet:
+              path: /triage/health-check/
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /triage/health-check/
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 20
