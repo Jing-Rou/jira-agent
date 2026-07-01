@@ -28,9 +28,14 @@ DEBUG = os.getenv('DJANGO_DEBUG').lower() == 'true'
 
 ALLOWED_HOSTS = [host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS').split(',') if host.strip()]
 
+CORS_ALLOWED_ORIGINS = [origin.strip()
+    for origin in os.getenv(
+        'CORS_ALLOWED_ORIGINS'
+    ).split(',')
+    if origin.strip()
+]
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -38,11 +43,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'rest_framework',
     'triage'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
