@@ -29,6 +29,152 @@ function nowLabel() {
   return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+function cleanLines(text) {
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function toBullets(text) {
+  const lines = cleanLines(text);
+  if (lines.length > 1) return lines.map((line) => line.replace(/^[-*]\s*/, ""));
+
+  return text
+    .split(/(?<=[.!?])\s+(?=[A-Z])/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function parseGeneratedComment(text) {
+  const labels = ["user_stories", "acceptance_criteria", "priority", "thought"];
+  const sections = {};
+
+  labels.forEach((label, index) => {
+    const start = text.indexOf(`${label}:`);
+    if (start === -1) return;
+
+    const valueStart = start + label.length + 1;
+    const nextStarts = labels
+      .slice(index + 1)
+      .map((nextLabel) => text.indexOf(`${nextLabel}:`, valueStart))
+      .filter((position) => position !== -1);
+    const valueEnd = nextStarts.length ? Math.min(...nextStarts) : text.length;
+    sections[label] = text.slice(valueStart, valueEnd).trim();
+  });
+
+  if (Object.keys(sections).length === 0) return null;
+  return sections;
+}
+
+function parseAgentOutput(text) {
+  const hasRelated = text.includes("Related tickets found:");
+  const hasComment = text.includes("Generated Jira comment:");
+  if (!hasRelated && !hasComment) return null;
+
+  const [analysisText, commentText = ""] = text.split("Generated Jira comment:");
+  const introText = analysisText.split("Related tickets found:")[0] || "";
+  const intro = cleanLines(introText).filter((line) => !line.toLowerCase().startsWith("triage complete"));
+
+  const related = [];
+  const relatedRegex = /-\s*([A-Z]+-\d+)\s+relates to\s+([A-Z]+-\d+)\s+LLM output:\s*([\s\S]*?)(?=\n\s*-\s*[A-Z]+-\d+\s+relates to|$)/g;
+  let match;
+
+  while ((match = relatedRegex.exec(analysisText)) !== null) {
+    related.push({
+      sourceKey: match[1],
+      issueKey: match[2],
+      thought: match[3].trim(),
+    });
+  }
+
+  return {
+    intro,
+    related,
+    comment: parseGeneratedComment(commentText),
+  };
+}
+
+function FormattedAgentOutput({ text }) {
+  const parsed = parseAgentOutput(text);
+
+  if (!parsed) return <pre>{text}</pre>;
+
+  return (
+    <div className="formatted-output">
+      {parsed.intro.map((line) => (
+        <p className="output-summary" key={line}>{line}</p>
+      ))}
+
+      {parsed.related.length > 0 && (
+        <section className="output-section">
+          <h3>Related issues</h3>
+          <div className="related-list">
+            {parsed.related.map((item) => (
+              <article className="related-issue" key={`${item.sourceKey}-${item.issueKey}`}>
+                <h4>{item.issueKey}</h4>
+                <p className="output-subhead">LLM thought</p>
+                <ul>
+                  {toBullets(item.thought).map((reason) => (
+                    <li key={reason}>{reason}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {parsed.comment && (
+        <section className="output-section jira-comment">
+          <h3>Generated Jira comment</h3>
+
+          {parsed.comment.user_stories && (
+            <div className="comment-group">
+              <h4>User stories</h4>
+              <ul>
+                {toBullets(parsed.comment.user_stories).map((story) => (
+                  <li key={story}>{story}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {parsed.comment.acceptance_criteria && (
+            <div className="comment-group">
+              <h4>Acceptance criteria</h4>
+              <ul>
+                {toBullets(parsed.comment.acceptance_criteria).map((criteria) => (
+                  <li key={criteria}>{criteria}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {parsed.comment.priority && (
+            <div className="priority-row">
+              <span>Priority</span>
+              <strong className={`priority-pill priority-${parsed.comment.priority.toLowerCase()}`}>
+                {parsed.comment.priority}
+              </strong>
+            </div>
+          )}
+
+          {parsed.comment.thought && (
+            <div className="comment-group">
+              <h4>LLM thought</h4>
+              <ul>
+                {toBullets(parsed.comment.thought).map((thought) => (
+                  <li key={thought}>{thought}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </section>
+      )}
+    </div>
+  );
+}
 export default function App() {
   const [health, setHealth] = useState("checking");
   const [records, setRecords] = useState([]);
@@ -275,7 +421,11 @@ export default function App() {
                     <span>{item.role === "assistant" ? "Jira Agent" : "You"}</span>
                     <time><Clock3 size={12} /> {item.time}</time>
                   </div>
-                  <pre>{item.text}</pre>
+                  {item.role === "assistant" ? (
+                    <FormattedAgentOutput text={item.text} />
+                  ) : (
+                    <pre>{item.text}</pre>
+                  )}
                     {item.draft && (
                     <div className="draft-preview">
                       <p><strong>Summary:</strong> {item.draft.summary}</p>
@@ -332,3 +482,4 @@ export default function App() {
     </main>
   );
 }
+

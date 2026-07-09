@@ -60,23 +60,40 @@ class LLM_Model():
                 "temperature": 0.2,
             },
         }
+        # payload = {
+        #     "model": self.model,
+        #     "messages": messages,
+        #     "temperature": 0.2,
+        # }
 
-        headers = {}
+        # headers = {}
 
-        if api_key := os.getenv("OLLAMA_API_KEY"):
-            headers["Authorization"] = f"Bearer {api_key}"
+        # if api_key := os.getenv("OLLAMA_API_KEY"):
+        #     headers["Authorization"] = f"Bearer {api_key}"
 
+        # headers = {
+        #     "Authorization": f"Bearer {os.getenv('LLM_API_KEY')}",
+        #     "Content-Type": "application/json",
+        # }
+        
         # send out the HTTP POST request with streaming enabled
         response = requests.post(
             f"{self.base_url}/api/chat", 
             json=payload, 
             timeout=120,
-            headers=headers
+            # headers=headers
             )
+        # response = requests.post(
+        #     f"{self.base_url}/chat/completions",
+        #     json=payload,
+        #     headers=headers,
+        #     timeout=120,
+        # )
 
         response.raise_for_status()
         result = response.json()        
 
+        # return result["choices"][0]["message"]["content"]
         return result["message"]["content"]
 
 create_issue_model   = LLM_Model(system_key="system_prompt_create_issue",   examples_key="examples_create_issue")
@@ -194,7 +211,7 @@ def triage(ticket_number: str) -> dict:
         for item in related_tickets:
             lines.extend([
                 f"- {item['source']} relates to {item['target']}",
-                "  LLM output:",
+                "Reason",
                 item["thought"],
                 "",
             ])
