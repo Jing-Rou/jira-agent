@@ -88,12 +88,12 @@ class LLM_Model():
             response = requests.post(
                 f"{self.base_url}/api/chat", 
                 json=payload, 
-                timeout=180,
+                timeout=120,
                 headers=headers
             )
 
             response.raise_for_status()
-            
+
         except requests.exceptions.RequestException as e:
             raise RuntimeError(
                 f"LLM_Model call failed (model={self.model}, base_url={self.base_url}): {e}"
