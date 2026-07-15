@@ -1,29 +1,21 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import { Bot, Clock3, Loader2, MessageSquareText, RefreshCcw, Send, Server, Sparkles, UserRound } from "lucide-react";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 function apiUrl(path) {
   return `${API_BASE_URL}${path}`;
 }
 
 const suggestions = [
-  "Triage SCRUM-5",
-  "Triage SCRUM-10",
-  "Check related tickets for SCRUM-12",
-  "Generate acceptance criteria for SCRUM-7",
+  "Search ticket SCRUM-5",
+  "How many tasks are in status DONE in project SCRUM?",
+  "Create a new task in project SCRUM with description 'This is a test.'",
+  "Find related tickets for SCRUM-12",
+  "Triage SCRUM-7",
 ];
-
-function parseRecords(payload) {
-  if (!payload?.result) return [];
-  if (Array.isArray(payload.result)) return payload.result;
-
-  try {
-    return JSON.parse(payload.result.replaceAll("'", '"'));
-  } catch {
-    return [{ ticket_key: "Raw", request: "Records response", response: payload.result }];
-  }
-}
 
 function nowLabel() {
   return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -67,6 +59,18 @@ function parseGeneratedComment(text) {
   return sections;
 }
 
+function normalizeOutputText(text) {
+  if (typeof text === "string") {
+    return text.replaceAll("\\n", "\n");
+  }
+
+  if (text?.message) {
+    return text.message.replaceAll("\\n", "\n");
+  }
+
+  return String(text ?? "");
+}
+
 function parseAgentOutput(text) {
   const hasRelated = text.includes("Related tickets found:");
   const hasComment = text.includes("Generated Jira comment:");
@@ -77,14 +81,16 @@ function parseAgentOutput(text) {
   const intro = cleanLines(introText).filter((line) => !line.toLowerCase().startsWith("triage complete"));
 
   const related = [];
-  const relatedRegex = /-\s*([A-Z]+-\d+)\s+relates to\s+([A-Z]+-\d+)\s+LLM output:\s*([\s\S]*?)(?=\n\s*-\s*[A-Z]+-\d+\s+relates to|$)/g;
+  const relatedRegex =
+  /-\s*([A-Z]+-\d+)\s+\[([A-Za-z]+)\]\s+([A-Z]+-\d+)\s+(?:LLM output:|Reason)\s*([\s\S]*?)(?=\n\s*-\s*[A-Z]+-\d+\s+\[[A-Za-z]+\]\s+[A-Z]+-\d+|Generated Jira comment:|$)/g;
   let match;
 
   while ((match = relatedRegex.exec(analysisText)) !== null) {
     related.push({
       sourceKey: match[1],
-      issueKey: match[2],
-      thought: match[3].trim(),
+      relationship: match[2],
+      issueKey: match[3],
+      thought: match[4].trim(),
     });
   }
 
@@ -96,9 +102,10 @@ function parseAgentOutput(text) {
 }
 
 function FormattedAgentOutput({ text }) {
-  const parsed = parseAgentOutput(text);
+  const normalizedText = normalizeOutputText(text);
+  const parsed = parseAgentOutput(normalizedText);
 
-  if (!parsed) return <pre>{text}</pre>;
+  if (!parsed) return <pre>{normalizedText}</pre>;
 
   return (
     <div className="formatted-output">
@@ -107,16 +114,35 @@ function FormattedAgentOutput({ text }) {
       ))}
 
       {parsed.related.length > 0 && (
-        <section className="output-section">
-          <h3>Related issues</h3>
+        <section className="output-section related-section">
+          <div className="related-section-header">
+            <div>
+              <h3>Related issues</h3>
+              <p>{parsed.related.length} matches found</p>
+            </div>
+          </div>
+
           <div className="related-list">
             {parsed.related.map((item) => (
-              <article className="related-issue" key={`${item.sourceKey}-${item.issueKey}`}>
-                <h4>{item.issueKey}</h4>
-                <p className="output-subhead">LLM thought</p>
-                <ul>
-                  {toBullets(item.thought).map((reason) => (
-                    <li key={reason}>{reason}</li>
+              <article
+                className="related-issue"
+                key={`${item.sourceKey}-${item.issueKey}`}
+              >
+                <div className="related-issue-header">
+                  <h4>{item.issueKey}</h4>
+
+                  <span
+                    className={`relationship-pill relationship-${item.relationship.toLowerCase()}`}
+                  >
+                    {item.relationship}
+                  </span>
+                </div>
+
+                <p className="output-subhead">Why it matches</p>
+
+                <ul className="related-reasons">
+                  {toBullets(item.thought).map((reason, index) => (
+                    <li key={`${item.issueKey}-${index}`}>{reason}</li>
                   ))}
                 </ul>
               </article>
@@ -127,11 +153,11 @@ function FormattedAgentOutput({ text }) {
 
       {parsed.comment && (
         <section className="output-section jira-comment">
-          <h3>Generated Jira comment</h3>
+          <h2>Generated Jira comment</h2>
 
           {parsed.comment.user_stories && (
             <div className="comment-group">
-              <h4>User stories</h4>
+              <h3>User stories</h3>
               <ul>
                 {toBullets(parsed.comment.user_stories).map((story) => (
                   <li key={story}>{story}</li>
@@ -142,7 +168,7 @@ function FormattedAgentOutput({ text }) {
 
           {parsed.comment.acceptance_criteria && (
             <div className="comment-group">
-              <h4>Acceptance criteria</h4>
+              <h3>Acceptance criteria</h3>
               <ul>
                 {toBullets(parsed.comment.acceptance_criteria).map((criteria) => (
                   <li key={criteria}>{criteria}</li>
@@ -153,7 +179,7 @@ function FormattedAgentOutput({ text }) {
 
           {parsed.comment.priority && (
             <div className="priority-row">
-              <span>Priority</span>
+              <span><strong>Priority</strong></span>
               <strong className={`priority-pill priority-${parsed.comment.priority.toLowerCase()}`}>
                 {parsed.comment.priority}
               </strong>
@@ -162,7 +188,7 @@ function FormattedAgentOutput({ text }) {
 
           {parsed.comment.thought && (
             <div className="comment-group">
-              <h4>LLM thought</h4>
+              <h3>LLM thought</h3>
               <ul>
                 {toBullets(parsed.comment.thought).map((thought) => (
                   <li key={thought}>{thought}</li>
@@ -175,20 +201,66 @@ function FormattedAgentOutput({ text }) {
     </div>
   );
 }
+
+function draftTitle(draft) {
+  const titles = {
+    create_issue: "Create Jira issue",
+    add_comment: "Add Jira comment",
+    link_issues: "Link Jira issues",
+    transition_issues: "Transition Jira issues",
+  };
+  return titles[draft?.type] || "Confirm Jira action";
+}
+
+function DraftPreview({ draft, functionName, isPending, loading, onConfirm, onCancel }) {
+  if (!draft) return null;
+
+  return (
+    <div className="draft-preview">
+      <h3>{draftTitle(draft)}</h3>
+
+      {draft.project_key && <p><strong>Project:</strong> {draft.project_key}</p>}
+      {draft.ticket_key && <p><strong>Ticket:</strong> {draft.ticket_key}</p>}
+      {draft.source_key && draft.target_key && (
+        <p><strong>Link:</strong> {draft.source_key} -&gt; {draft.target_key} ({draft.link_type})</p>
+      )}
+      {draft.summary && <p><strong>Summary:</strong> {draft.summary}</p>}
+      {draft.work_type && <p><strong>Type:</strong> {draft.work_type}</p>}
+      {draft.description && <p><strong>Description:</strong> {draft.description}</p>}
+      {draft.comment && <p><strong>Comment:</strong> {draft.comment}</p>}
+      {draft.issue_keys?.length > 0 && (
+        <p><strong>Issues:</strong> {draft.issue_keys.join(", ")}</p>
+      )}
+      {draft.from_status && draft.to_status && (
+        <p><strong>Status:</strong> {draft.from_status} -&gt; {draft.to_status}</p>
+      )}
+
+      {isPending && (
+        <div className="draft-actions">
+          <button type="button" onClick={() => onConfirm(draft, functionName)} disabled={loading}>
+            Confirm
+          </button>
+          <button type="button" onClick={onCancel} disabled={loading}>
+            Cancel
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const [health, setHealth] = useState("checking");
-  const [records, setRecords] = useState([]);
   const [message, setMessage] = useState("Triage SCRUM-5");
   const [messages, setMessages] = useState([
     {
-      id: crypto.randomUUID(),
+      id: "welcome-message",
       role: "assistant",
       text: "Hi, I can run your Jira triage agent. Send a request with a ticket key like SCRUM-5.",
-      time: nowLabel(),
+      time: "",
     },
   ]);
   const [loading, setLoading] = useState(false);
-  const [recordsLoading, setRecordsLoading] = useState(false);
   const scrollRef = useRef(null);
   const [pendingDraft, setPendingDraft] = useState(null);
 
@@ -202,16 +274,17 @@ export default function App() {
     }
   }
 
-  async function loadRecords() {
-    setRecordsLoading(true);
+  async function readApiResponse(response) {
+    const text = await response.text();
+
+    if (!text) return {};
+
     try {
-      const response = await fetch(apiUrl("/triage/get-records/"));
-      const data = await response.json();
-      setRecords(parseRecords(data));
+      return JSON.parse(text);
     } catch {
-      setRecords([]);
-    } finally {
-      setRecordsLoading(false);
+      return {
+        error: `${response.status} ${response.statusText}: ${text}`,
+      };
     }
   }
 
@@ -239,11 +312,13 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ request: trimmed }),
       });
-      const data = await response.json();
+      // const data = await response.json();
+      const data = await readApiResponse(response);
 
-      if (response.ok && data.type === "issue_draft") {
+      if (response.ok && (data.function === "draft_issue" )) {
         // store the draft, don't treat it as a finished message
-        setPendingDraft(data.draft);
+        const draft = data.draft;
+        setPendingDraft(draft);
 
         setMessages((current) => [
           ...current,
@@ -252,7 +327,8 @@ export default function App() {
             role: "assistant",
             text: data.output,
             time: nowLabel(),
-            draft: data.draft,   // attach the draft to this specific message
+            draft,
+            functionName: data.function,
           },
         ]);
       } else {
@@ -269,7 +345,6 @@ export default function App() {
             error: !response.ok },
         ]);
 
-        if (response.ok) await loadRecords();
       }
     } catch (err) {
       setMessages((current) => [
@@ -287,13 +362,18 @@ export default function App() {
     }
   }
 
-  async function confirmCreateIssue(draft) {
+  async function confirmJiraAction(draft, functionName) {
     setLoading(true);
+    const payload = {
+      ...draft,
+      function_name: functionName,
+    };
+
     try {
-      const response = await fetch(apiUrl("/triage/triage-jira-ticket/"), {
+      const response = await fetch(apiUrl("/triage/confirmed-jira-action/"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(draft),
+        body: JSON.stringify(payload),
       });
       const data = await response.json();
 
@@ -310,8 +390,10 @@ export default function App() {
           error: !response.ok },
       ]);
 
-      setPendingDraft(null);
-      if (response.ok) await loadRecords();
+      if (response.ok) {
+        setPendingDraft(null);
+      }
+
     } catch (err) {
       setMessages((current) => [
         ...current,
@@ -328,7 +410,7 @@ export default function App() {
       ...current,
       { id: crypto.randomUUID(), 
         role: "assistant", 
-        text: "Okay, I won't create that ticket.", 
+        text: "Okay, I won't run that Jira action.", 
         time: nowLabel() },
     ]);
   }
@@ -338,8 +420,12 @@ export default function App() {
   }
 
   useEffect(() => {
+    setMessages((current) => current.map((item) => (
+      item.id === "welcome-message" && !item.time
+        ? { ...item, time: nowLabel() }
+        : item
+    )));
     checkHealth();
-    loadRecords();
   }, []);
 
   useEffect(() => {
@@ -379,26 +465,6 @@ export default function App() {
             ))}
           </div>
 
-          <div className="history-card">
-            <div className="history-header">
-              <p className="section-title">Recent runs</p>
-              <button type="button" onClick={loadRecords} title="Refresh history" aria-label="Refresh history">
-                {recordsLoading ? <Loader2 className="spin" size={15} /> : <RefreshCcw size={15} />}
-              </button>
-            </div>
-            <div className="history-list">
-              {records.length === 0 ? (
-                <p className="empty-history">No saved records yet.</p>
-              ) : (
-                records.slice(0, 6).map((record, index) => (
-                  <article key={`${record.ticket_key || "record"}-${record.created_at || index}`}>
-                    <strong>{record.ticket_key || "Record"}</strong>
-                    <span>{record.request}</span>
-                  </article>
-                ))
-              )}
-            </div>
-          </div>
         </aside>
 
         <section className="chat-panel">
@@ -426,24 +492,14 @@ export default function App() {
                   ) : (
                     <pre>{item.text}</pre>
                   )}
-                    {item.draft && (
-                    <div className="draft-preview">
-                      <p><strong>Summary:</strong> {item.draft.summary}</p>
-                      <p><strong>Type:</strong> {item.draft.work_type}</p>
-                      <p><strong>Description:</strong> {item.draft.description}</p>
-
-                      {pendingDraft === item.draft && (
-                        <div className="draft-actions">
-                          <button type="button" onClick={() => confirmCreateIssue(item.draft)} disabled={loading}>
-                            Confirm & Create
-                          </button>
-                          <button type="button" onClick={cancelDraft} disabled={loading}>
-                            Cancel
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  <DraftPreview
+                    draft={item.draft}
+                    functionName={item.functionName}
+                    isPending={pendingDraft === item.draft}
+                    loading={loading}
+                    onConfirm={confirmJiraAction}
+                    onCancel={cancelDraft}
+                  />
                 </div>
               </div>
             ))}

@@ -34,14 +34,13 @@ An AI-powered assistant that automates Jira ticket triage, issue creation, and t
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    React Frontend (Vite)                    │
+│                    Next.js Frontend                         │
 │                    Chat Interface                           │
 └──────────────────────────┬──────────────────────────────────┘
                            │ HTTP/REST
 ┌──────────────────────────▼──────────────────────────────────┐
 │           Django REST API (DRF)                             │
 │  - /triage/jira-agent/ (POST)  - Send triage requests       │
-│  - /triage/get-records/ (GET)  - Fetch results              │
 │  - /triage/health-check/ (GET) - Check service status       │
 └──────────────────────────┬──────────────────────────────────┘
                            │
@@ -138,7 +137,7 @@ npm install
 ```bash
 npm run dev
 ```
-The frontend will be available at `http://localhost:5173`
+The frontend will be available at `http://localhost:3000`
 
 ### 4. Ensure Ollama is Running
 
@@ -173,7 +172,7 @@ Update `LLM_MODEL` in `.env` to match your chosen model.
 
 ### Via Web Interface
 
-1. Open `http://localhost:5173` in your browser
+1. Open `http://localhost:3000` in your browser
 2. Enter a request in the chat:
    - **Triage a ticket**: `"Triage SCRUM-5"` → Agent analyzes the ticket and returns priority, user stories, and acceptance criteria
    - **Create a draft**: `"Create an issue about slow login on mobile"` → Agent drafts the issue for your confirmation
@@ -243,22 +242,6 @@ Send a triage, creation, or query request to the agent.
 }
 ```
 
-### GET `/triage/get-records/`
-Fetch recent triage results and records.
-
-**Response:**
-```json
-{
-  "result": [
-    {
-      "ticket_key": "SCRUM-5",
-      "request": "Triage SCRUM-5",
-      "response": "..."
-    }
-  ]
-}
-```
-
 ### GET `/triage/health-check/`
 Check if the agent service is online.
 
@@ -275,13 +258,15 @@ Check if the agent service is online.
 
 ```
 jira-agent/
-├── frontend/                    # React + Vite UI
+├── frontend/                    # Next.js UI
+│   ├── app/
+│   │   ├── layout.jsx
+│   │   └── page.jsx
 │   ├── src/
 │   │   ├── App.jsx             # Main chat interface
-│   │   ├── main.jsx
 │   │   └── styles.css
 │   ├── package.json
-│   └── vite.config.js
+│   └── next.config.mjs
 │
 ├── jiraAgent/                   # Django backend
 │   ├── manage.py

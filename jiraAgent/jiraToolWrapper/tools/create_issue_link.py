@@ -37,7 +37,4 @@ async def create_issue_link(
 
     result = await jira.create_issue_link(payload)
 
-    # print(json.dumps(json.loads(result.text), sort_keys=True, indent=4, separators=(",", ": ")))
-
-
 

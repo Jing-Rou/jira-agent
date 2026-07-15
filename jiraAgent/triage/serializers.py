@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from triage.models import TriageRecord
 
 class ModelRequestSerializer(serializers.Serializer):
     request = serializers.CharField(
@@ -10,7 +9,3 @@ class ModelRequestSerializer(serializers.Serializer):
             }
         )
 
-class ModelResponseSerializer(serializers.Serializer):
-    class Meta:
-        model = TriageRecord
-        fields = ["ticket_key", "request", "response", "created_at"]

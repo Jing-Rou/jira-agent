@@ -9,13 +9,14 @@ async def create_issue(
     summary: str,
     description: str,
     work_type: str,
+    project_key: str | None = None,
 ):
     
     # wrap plain string into ADF format Jira Cloud v3 expects
     payload = {
         "fields": {
             "project": {
-                "key": os.getenv("PROJECT_KEY", "SCRUM")
+                "key": project_key or os.getenv("PROJECT_KEY", "SCRUM")
             },
             "summary": summary,
             "description": {

@@ -3,7 +3,7 @@
 This project has two apps:
 
 - `backend`: Django REST API on port `8000`
-- `frontend`: React app served by Nginx on port `80` inside the container
+- `frontend`: Next.js app served on port `3000` inside the container
 
 ## Beginner Concepts
 
@@ -18,7 +18,7 @@ Docker packages your app plus its runtime into an image.
 In this project:
 
 - `docker/backend.Dockerfile` builds the Django API image
-- `docker/frontend.Dockerfile` builds the React app and serves it with Nginx
+- `docker/frontend.Dockerfile` builds and runs the Next.js standalone server
 - `docker-compose.yml` runs both containers locally
 
 ### Kubernetes
@@ -34,7 +34,7 @@ Kubernetes runs containers in a cluster.
 In this project:
 
 - `k8s/backend-deployment.yaml` runs Django
-- `k8s/frontend-deployment.yaml` runs Nginx + React
+- `k8s/frontend-deployment.yaml` runs Next.js
 - `k8s/backend-service.yaml` lets frontend reach backend as `http://backend:8000`
 - `k8s/frontend-service.yaml` exposes the frontend on NodePort `30080`
 

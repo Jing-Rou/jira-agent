@@ -119,6 +119,21 @@ class JiraClient:
         logger.info("add_issue_comment called")
         return await self.post(f"/rest/api/3/issue/{issueKey}/comment", payload)
 
+    async def get_issue_transitions(
+        self,
+        issueKey: str,
+    ) -> dict:
+        logger.info("get_issue_transitions called")
+        return await self.get(f"/rest/api/3/issue/{issueKey}/transitions")
+
+    async def transition_issue(
+        self,
+        issueKey: str,
+        payload: dict | None = None,
+    ) -> dict:
+        logger.info("transition_issue called")
+        return await self.post(f"/rest/api/3/issue/{issueKey}/transitions", payload)
+
     async def create_issue(
         self,
         payload: dict | None = None,

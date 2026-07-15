@@ -1,6 +1,6 @@
 # Jira Agent Frontend
 
-React UI for the Django Jira triage API.
+Next.js UI for the Django Jira triage API.
 
 ## Run locally
 
@@ -11,7 +11,7 @@ cd C:\Users\User\Documents\JR\LLM\Jira-Agent\jiraAgent
 ..\.venv\Scripts\python.exe manage.py runserver
 ```
 
-Then start React:
+Then start Next.js:
 
 ```powershell
 cd C:\Users\User\Documents\JR\LLM\Jira-Agent\frontend
@@ -19,6 +19,18 @@ npm install
 npm run dev
 ```
 
-Open http://127.0.0.1:5173
+Open http://127.0.0.1:3000
 
-The Vite dev server proxies `/triage/*` requests to `http://127.0.0.1:8000`, so Django does not need CORS changes for local development.
+Next.js proxies `/triage/*` requests to `http://127.0.0.1:8000` by default.
+
+For a deployed Django API, set:
+
+```env
+DJANGO_API_URL=https://your-backend.example.com
+```
+
+This keeps browser requests on the same origin. Existing direct browser calls are also supported with:
+
+```env
+NEXT_PUBLIC_API_BASE_URL=https://your-backend.example.com
+```

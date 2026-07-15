@@ -98,14 +98,12 @@ h2 { font-size: 18px; font-weight: 700; }
 }
 
 .api-card button,
-.history-header button,
 .composer button {
   border: 0;
   border-radius: 8px;
 }
 
-.api-card button,
-.history-header button {
+.api-card button {
   width: 32px;
   height: 32px;
   display: grid;
@@ -114,8 +112,7 @@ h2 { font-size: 18px; font-weight: 700; }
   background: #f1f3f5;
 }
 
-.api-card button:hover,
-.history-header button:hover { background: #e5e7eb; }
+.api-card button:hover { background: #e5e7eb; }
 
 .health {
   padding: 4px 8px;
@@ -160,50 +157,6 @@ h2 { font-size: 18px; font-weight: 700; }
 
 .suggestions button:hover { background: #ececf0; }
 .suggestions svg { color: #6b7280; flex: 0 0 auto; }
-
-.history-card {
-  margin: 18px 4px 0;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.history-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.history-list {
-  overflow: auto;
-  display: grid;
-  gap: 4px;
-  padding-right: 2px;
-}
-
-.history-list article {
-  padding: 9px 10px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-}
-
-.history-list article:hover { background: #ececf0; }
-
-.history-list strong {
-  display: block;
-  color: #111827;
-  margin-bottom: 3px;
-  font-size: 13px;
-}
-
-.history-list span,
-.empty-history {
-  color: #6b7280;
-  font-size: 13px;
-}
 
 .chat-header {
   display: flex;
@@ -384,6 +337,13 @@ pre {
   background: #f9fafb;
 }
 
+.draft-preview h3 {
+  margin: 0 0 10px;
+  color: #111827;
+  font-size: 15px;
+  font-weight: 800;
+}
+
 .draft-preview p { margin: 0 0 8px; font-size: 14px; line-height: 1.55; }
 
 .draft-actions {
@@ -469,24 +429,11 @@ pre {
   font-weight: 800;
 }
 
-.related-list {
-  display: grid;
-  gap: 10px;
-}
-
-.related-issue,
 .jira-comment {
   padding: 14px;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   background: #fbfcfe;
-}
-
-.related-issue h4 {
-  margin: 0 0 6px;
-  color: #0f172a;
-  font-size: 18px;
-  font-weight: 800;
 }
 
 .output-subhead,
@@ -549,4 +496,115 @@ pre {
 .priority-low {
   color: #166534;
   background: #dcfce7;
+}
+
+.related-section {
+  margin-top: 18px;
+}
+
+.related-section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.related-section-header h3 {
+  margin: 0;
+  color: #111827;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.related-section-header p {
+  margin: 3px 0 0;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.related-list {
+  display: block;
+  overflow: hidden;
+  border: 1px solid #d9e1ea;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.related-issue {
+  padding: 14px 16px;
+  border: 0;
+  border-bottom: 1px solid #e5eaf0;
+  border-radius: 0;
+  background: #ffffff;
+}
+
+.related-issue:last-child {
+  border-bottom: 0;
+}
+
+.related-issue:hover {
+  background: #f8fafc;
+}
+
+.related-issue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.related-issue-header h4 {
+  margin: 0;
+  color: #111827;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.relationship-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border: 1px solid #bfdbfe;
+  border-radius: 4px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.relationship-duplicate {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.relationship-blocks,
+.relationship-causes {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.relationship-implements {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.output-subhead {
+  margin: 0 0 5px;
+}
+
+.related-reasons {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.related-reasons li {
+  margin: 3px 0;
+  color: #4b5563;
+  line-height: 1.55;
 }
