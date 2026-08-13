@@ -2,6 +2,8 @@
 
 An AI-powered assistant that automates Jira ticket triage, issue creation, and ticket management using a local LLM. Intelligently classify incoming tickets, generate user stories and acceptance criteria, and streamline your team's ticket workflow.
 
+
+
 ## ✨ Features
 
 ### **Ticket Triage**
@@ -22,11 +24,6 @@ An AI-powered assistant that automates Jira ticket triage, issue creation, and t
 - Add comments to existing issues
 - Create issue links and relationships
 - Fetch specific tickets by ID
-
-### **Model-Agnostic**
-- Uses **Ollama** for local, private LLM inference
-- **LangChain** integration for flexible prompt engineering
-- **Model Context Protocol (MCP)** for extensible tool management
 
 ### **Agentic RAG**
 - Uses the prebuilt LangGraph ReAct loop to choose Jira tools, PDF retrieval, or both

@@ -26,3 +26,4 @@ llama-index-readers-file
 llama-index-retrievers-bm25
 llama-index-vector-stores-chroma
 pymupdf
+atlassian-python-api

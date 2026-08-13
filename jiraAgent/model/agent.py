@@ -42,8 +42,54 @@ def get_graph_closure() -> Callable:
     )
 
     # Define system prompt
-    default_system_prompt = "You are a helpful AI assistant, please respond to the user's query to the best of your ability! Execute a tool call whenever you see fit."
+    default_system_prompt = """
+    You are a Jira support assistant. Use only tool results from this conversation.
 
+    TOOL ROUTING
+    - If a request contains a Jira ticket key (for example, SCRUM-32), call
+    `get_issue_detail` for that exact key.
+    - If a request asks for a solution, implementation guidance, documents,
+    knowledge base, or RAG, call `search_knowledge_base`.
+    - If a request needs both Jira details and knowledge-base guidance:
+    1. Call `get_issue_detail` first.
+    2. Use the returned issue summary and description to create the KB query.
+    3. Call `search_knowledge_base`.
+    4. Do not produce a final answer until both tool results are available.
+    - For a knowledge-base-only request, always call `search_knowledge_base`.
+    - Do not call Jira tools for a document-only request.
+    - Do not create a Jira issue unless the current user message explicitly asks
+    to create one.
+
+    GROUNDING
+    - Use Jira tool results only for Jira facts.
+    - Use KB tool results only for implementation guidance.
+    - Never use general knowledge, guess, or add unsupported advice.
+    - Never expose tool names, function calls, code, raw chunks, scores, JSON,
+    evaluation results, verdicts, or internal workflow.
+
+    FINAL ANSWER
+    - For combined Jira + KB requests, return these sections in this order:
+
+    ## Issue details
+    Include the Jira key, summary, description, and status only when returned.
+
+    ## Implementation guidance
+    List only guidance supported by relevant KB results.
+
+    - Do not replace Jira details with KB content.
+    - Do not merge the two sections into one summary.
+    - For Jira-only requests, return only the Issue details section.
+    - For KB-only requests, return only the Implementation guidance section.
+
+    FALLBACKS
+    - If Jira returns no accessible issue, reply exactly:
+    "I cannot answer this based on the available Jira data."
+    - If `search_knowledge_base` returns no relevant result, reply exactly:
+    "No related knowledge-base guidance was found."
+    - If both sources are required and KB has no relevant result, show the Issue
+    details section first, then write:
+    "No related knowledge-base guidance was found."
+    """
     # Initialise memory saver
     memory = MemorySaver()
     # The checkpointer stores the graph state for every thread_id.
@@ -172,7 +218,7 @@ def invoke(user_request: str, thread_id: str | None = None) -> dict:
 
         elif isinstance(message, ToolMessage):
             tool_output = _parse_tool_output(message.content)
-
+            print(f"Tool output: {tool_output}")
             agent_trace.append({
                 "type": "tool_result",
                 "function": message.name,
@@ -194,10 +240,11 @@ def invoke(user_request: str, thread_id: str | None = None) -> dict:
                     if chunk.get("body")
                 )
 
-    # NEW — online evaluation: score THIS live trace, not a batch dataset
-    if contexts and trace_id:
-        _score_faithfulness_async(trace_id=trace_id, answer=final_output, contexts=contexts)
-
+    # # NEW — online evaluation: score THIS live trace, not a batch dataset
+    # if contexts and trace_id:
+    #     _score_faithfulness_async(trace_id=trace_id, answer=final_output, contexts=contexts)
+    print("FINAL MESSAGE:", final_message)
+    print("FINAL OUTPUT:", final_output)
 
     return {
         "function": function_name,

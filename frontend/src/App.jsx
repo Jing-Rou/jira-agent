@@ -195,11 +195,15 @@ function MarkdownOutput({ text }) {
 
   function flushList() {
     if (!list.length) return;
+
+    const block = { type: listType, items: list };
+
     if (listType === "numbers") {
-      block.startAt = numberCounter; 
-      numberCounter += list.length;   
+      block.startAt = numberCounter;
+      numberCounter += list.length;
     }
-    blocks.push({ type: listType, items: list });
+
+    blocks.push(block);
     list = [];
     listType = null;
   }

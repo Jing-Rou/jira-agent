@@ -56,7 +56,7 @@ class PDFKnowledgeBase:
         self.llm = Ollama(
             model=llm_model,
             base_url=RAG_OLLAMA_URL,
-            temperature=0.2,
+            temperature=0,
             request_timeout=120.0,
             headers=headers or None,
         )
@@ -188,7 +188,7 @@ class PDFKnowledgeBase:
             "Example — context about table design, query about geography:\n"
             f"Answer: {INSUFFICIENT_CONTEXT}\n\n"
             "Query: {query_str}\n"
-            "Answer: "
+            "Answe  r: "
         )
 
         self.response_synthesizer = get_response_synthesizer(
@@ -210,8 +210,7 @@ class PDFKnowledgeBase:
 
 
         query_bundle = self.hyde(query)
-        print(f"User query: {query}")
-        print(f"HyDE query bundle: {query_bundle}")
+
         # retrieve relevant PDF chunks for the query
         results = self.retriever.retrieve(query_bundle)
 

@@ -24,7 +24,8 @@ from model.knowledge_base import (
     search,
 )
 from .llm import create_issue_model, product_model
-
+from langchain_community.utilities.jira                 import JiraAPIWrapper
+from langchain_community.agent_toolkits.jira.toolkit    import JiraToolkit
 
 load_dotenv()
 
@@ -404,6 +405,10 @@ def search_knowledge_base(
     return _search_knowledge_base(query, category)
 
 
+jira_wrapper = JiraAPIWrapper()
+toolkit = JiraToolkit.from_jira_api_wrapper(jira_wrapper)
+jira_toolkit_tools = toolkit.get_tools()
+    
 # The complete catalogue is useful for discovery and tests. The fallback ReAct
 # agent receives only JIRA_TOOLS because the outer graph has already attempted
 # knowledge retrieval before it is allowed to reach Jira.
@@ -414,4 +419,4 @@ JIRA_TOOLS = [
     generate_triage,
     draft_issue,
 ]
-TOOLS = [search_knowledge_base, *JIRA_TOOLS]
+TOOLS = [search_knowledge_base, *JIRA_TOOLS, *jira_toolkit_tools]
