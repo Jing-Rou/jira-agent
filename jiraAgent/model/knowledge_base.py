@@ -26,7 +26,7 @@ from llama_index.core import PromptTemplate
 from llama_index.core.response_synthesizers import get_response_synthesizer
 from llama_index.core.schema import NodeWithScore, TextNode
 from llama_index.core.indices.query.query_transform.base import HyDEQueryTransform
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+# from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 import logging
 import time
 logger = logging.getLogger(__name__)
