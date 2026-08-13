@@ -26,7 +26,7 @@ from llama_index.core import PromptTemplate
 from llama_index.core.response_synthesizers import get_response_synthesizer
 from llama_index.core.schema import NodeWithScore, TextNode
 from llama_index.core.indices.query.query_transform.base import HyDEQueryTransform
-
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 INSUFFICIENT_CONTEXT = "INSUFFICIENT_CONTEXT"
 
@@ -39,20 +39,23 @@ class PDFKnowledgeBase:
 
     def __init__(
         self,
-        embed_model: str = "qwen3-embedding:0.6b",
-        llm_model: str = "llama3.2:latest",
-        RAG_OLLAMA_URL: str = "http://localhost:11434",
-        chunk_size: int = 768,
-        chunk_overlap: int = 100,
+        embed_model: str,
+        llm_model: str,
+        RAG_OLLAMA_URL: str,
+        chunk_size: int,
+        chunk_overlap: int,
         storage_dir: str | Path | None = None,
     ) -> None:
         api_key = os.getenv("OLLAMA_API_KEY")
         headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
-        self.embed_model = OllamaEmbedding(
-            model_name=embed_model,
-            base_url=RAG_OLLAMA_URL,
-            client_kwargs={"headers": headers} if headers else None,
-        )
+
+        self.embed_model = HuggingFaceEmbedding(model_name=embed_model)
+
+        # self.embed_model = OllamaEmbedding(
+        #     model_name=embed_model,
+        #     base_url=RAG_OLLAMA_URL,
+        #     client_kwargs={"headers": headers} if headers else None,
+        # )
         self.llm = Ollama(
             model=llm_model,
             base_url=RAG_OLLAMA_URL,
@@ -307,9 +310,9 @@ _kb_lock = Lock()
 
 def _new_knowledge_base() -> PDFKnowledgeBase:
     return PDFKnowledgeBase(
-        embed_model=os.getenv("EMBEDDING_MODEL", "qwen3-embedding:0.6b"),
-        llm_model=os.getenv("RAG_LLM_MODEL", os.getenv("LLM_MODEL", "llama3.2:latest")),
-        RAG_OLLAMA_URL=os.getenv("RAG_OLLAMA_URL", "http://localhost:11434"),
+        embed_model=os.getenv("EMBEDDING_MODEL"),
+        llm_model=os.getenv("LLM_MODEL"),
+        RAG_OLLAMA_URL=os.getenv("RAG_OLLAMA_URL"),
         chunk_size=int(os.getenv("RAG_CHUNK_SIZE", "768")),
         chunk_overlap=int(os.getenv("RAG_CHUNK_OVERLAP", "100")),
         storage_dir=os.getenv("RAG_STORAGE_DIR", "kb_storage"),

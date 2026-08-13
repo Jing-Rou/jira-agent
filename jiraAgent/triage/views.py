@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -66,6 +67,9 @@ class JiraAgentApiView(APIView):
                 status=status.HTTP_502_BAD_GATEWAY,
             )
         except Exception as error:
+            print("Agent error:", repr(error))
+            print(traceback.format_exc())
+
             return Response(
                 {"error": str(error), "type": "agent_error"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -36,6 +36,9 @@ def get_graph_closure() -> Callable:
         if api_key
         else {}
     )
+    print("LLM base URL:", os.getenv("LLM_BASE_URL"))
+    print("LLM model:", os.getenv("LLM_MODEL"))
+    print("Ollama API key configured:", bool(os.getenv("OLLAMA_API_KEY")))
 
     # Initialise ChatWatsonx
     llm_model = ChatOllama(
