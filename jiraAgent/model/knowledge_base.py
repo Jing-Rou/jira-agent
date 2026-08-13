@@ -49,13 +49,13 @@ class PDFKnowledgeBase:
         api_key = os.getenv("OLLAMA_API_KEY")
         headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
 
-        self.embed_model = HuggingFaceEmbedding(model_name=embed_model)
+        # self.embed_model = HuggingFaceEmbedding(model_name=embed_model)
 
-        # self.embed_model = OllamaEmbedding(
-        #     model_name=embed_model,
-        #     base_url=RAG_OLLAMA_URL,
-        #     client_kwargs={"headers": headers} if headers else None,
-        # )
+        self.embed_model = OllamaEmbedding(
+            model_name=embed_model,
+            base_url=RAG_OLLAMA_URL,
+            client_kwargs={"headers": headers} if headers else None,
+        )
         self.llm = Ollama(
             model=llm_model,
             base_url=RAG_OLLAMA_URL,
