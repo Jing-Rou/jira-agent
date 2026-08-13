@@ -4,36 +4,38 @@ An AI-powered assistant that automates Jira ticket triage, issue creation, and t
 
 ## Demo
 
-![Jira Agent demo]
-<img src="img\triage_ticket.png" alt="Jira Agent demo" width="900">
-
-## ✨ Features
-
-### **Ticket Triage**
+#### **Ticket Triage**
 - Automatically analyze ticket descriptions and generate:
   - **Priority levels** (Low, Medium, High) based on impact and urgency
   - **User stories** from technical descriptions
   - **Acceptance criteria** for QA and engineering teams
   - **Reasoning** behind priority decisions
+- Creates a proposed triage result before any Jira update is made.
+<img src="img\triage_ticket.png" alt="Jira Agent demo" width="900">
+
+#### **Ticket Management**
+- Fetches Jira issue details by ticket key.
+- Searches and filters Jira tickets by project, status, assignee, and resolution.
+- Handles missing or inaccessible tickets with a clear response.
+<img src="img\shows.png" alt="Jira Agent demo" width="900">
+<img src="img\search_ticket_user.png" alt="Jira Agent demo" width="900">
+<img src="img\filter_status.png" alt="Jira Agent demo" width="900">
+<img src="img\invalid_jira_ticket.png" alt="Jira Agent demo" width="900">
 
 ### **Issue Creation Assistant**
-- Help draft Jira issues with proper structure:
-  - Auto-generate summaries and descriptions
-  - Suggest appropriate work types (Bug, Story, Feature, Epic, Request)
-  - User confirmation workflow before creating in Jira
-
-### **Ticket Management**
-- Query unresolved tickets across your project
-- Add comments to existing issues
-- Create issue links and relationships
-- Fetch specific tickets by ID
+- Creates a structured Jira issue draft from a natural-language request.
+- Generates the summary, description, project, and work type.
+- Requires user confirmation before creating the issue in Jira.
+<img src="img\create_ticket.png" alt="Jira Agent demo" width="900">
+<img src="img\triage_created_ticket.png" alt="Jira Agent demo" width="900">
 
 ### **Agentic RAG**
-- Uses the prebuilt LangGraph ReAct loop to choose Jira tools, PDF retrieval, or both
-- Combines Chroma vector retrieval with BM25 keyword retrieval
-- Generates grounded answers with document names and page references
-- Keeps real Jira writes behind the existing confirmation endpoint
-
+- Uses LangGraph to route requests to Jira tools, the knowledge base, or both.
+- Retrieves PDF knowledge using hybrid Chroma vector search and BM25 keyword search.
+- Generates grounded implementation guidance from relevant document content.
+- Supports combined flows: retrieve Jira details first, then find relevant knowledge-base guidance.
+- Returns a clear fallback when no relevant document guidance is found.
+<img src="img\kb_search.png" alt="Jira Agent demo" width="900">
 ---
 
 ## 📋 Prerequisites
