@@ -21,3 +21,11 @@ jiraAgent/jiraToolWrapper/logs/*.log
 # --- lock/build artifacts that are environment-specific ---
 frontend/vite.err.log
 frontend/vite.out.log
+
+langgraph_react_agent.py
+main.py
+jiraAgent/jiraToolWrapper/tools/add_issue_comment.py
+jiraAgent/SjiraToolWrapper/tools/create_issue_link.py
+    
+kb_storage/
+jiraAgent/kb_storage/chroma/

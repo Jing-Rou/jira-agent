@@ -1,0 +1,142 @@
+{
+  "summary": {
+    "total_cases": 7,
+    "passed_cases": 6,
+    "tool_selection_accuracy": 0.8571428571428571,
+    "argument_accuracy": 1.0,
+    "confirmation_compliance": 1.0,
+    "draft_validity": 0.8571428571428571,
+    "output_validity": 1.0
+  },
+  "cases": [
+    {
+      "id": "get-issue",
+      "input": "Show me the details of SCRUM-7",
+      "expected_tool": "get_issue_detail",
+      "actual_tools": [
+        "get_issue_detail"
+      ],
+      "actual_arguments": {
+        "ticket_key": "SCRUM-7"
+      },
+      "checks": {
+        "tool_selected": true,
+        "arguments_match": true,
+        "required_arguments_present": true,
+        "confirmation_respected": true,
+        "draft_valid": true,
+        "output_valid": true
+      },
+      "passed": true,
+      "error": ""
+    },
+    {
+      "id": "count-issues",
+      "input": "How many unresolved Jira tickets are in project SCRUM?",
+      "expected_tool": "count_jira_tickets",
+      "actual_tools": [
+        "count_jira_tickets"
+      ],
+      "actual_arguments": {
+        "status": "Unresolved",
+        "project_key": "SCRUM"
+      },
+      "checks": {
+        "tool_selected": true,
+        "arguments_match": true,
+        "required_arguments_present": true,
+        "confirmation_respected": true,
+        "draft_valid": true,
+        "output_valid": true
+      },
+      "passed": true,
+      "error": ""
+    },
+    {
+      "id": "search-issues",
+      "input": "Find all To Do tickets in project SCRUM",
+      "expected_tool": "search_jira_tickets",
+      "actual_tools": [
+        "search_jira_tickets"
+      ],
+      "actual_arguments": {
+        "status": "To Do",
+        "project_key": "SCRUM"
+      },
+      "checks": {
+        "tool_selected": true,
+        "arguments_match": true,
+        "required_arguments_present": true,
+        "confirmation_respected": true,
+        "draft_valid": true,
+        "output_valid": true
+      },
+      "passed": true,
+      "error": ""
+    },
+    {
+      "id": "triage-issue",
+      "input": "Triage SCRUM-7",
+      "expected_tool": "generate_triage",
+      "actual_tools": [
+        "generate_triage"
+      ],
+      "actual_arguments": {
+        "ticket_key": "SCRUM-7"
+      },
+      "checks": {
+        "tool_selected": true,
+        "arguments_match": true,
+        "required_arguments_present": true,
+        "confirmation_respected": true,
+        "draft_valid": true,
+        "output_valid": true
+      },
+      "passed": true,
+      "error": ""
+    },
+    {
+      "id": "draft-issue",
+      "input": "Create a bug in SCRUM because the database connection fails during startup",
+      "expected_tool": "draft_issue",
+      "actual_tools": [
+        "draft_issue"
+      ],
+      "actual_arguments": {
+        "user_request": "Create a bug in SCRUM because the database connection fails during startup."
+      },
+      "checks": {
+        "tool_selected": true,
+        "arguments_match": true,
+        "required_arguments_present": true,
+        "confirmation_respected": true,
+        "draft_valid": true,
+        "output_valid": true
+      },
+      "passed": true,
+      "error": ""
+    },
+    {
+      "id": "knowledge-search",
+      "input": "According to the uploaded documentation, how does hybrid RAG retrieval work?",
+      "expected_tool": "search_knowledge_base",
+      "actual_tools": [
+        "search_knowledge_base"
+      ],
+      "actual_arguments": {
+        "category": "general",
+        "query": "how does hybrid RAG retrieval work?"
+      },
+      "checks": {
+        "tool_selected": true,
+        "arguments_match": true,
+        "required_arguments_present": true,
+        "confirmation_respected": true,
+        "draft_valid": true,
+        "output_valid": true
+      },
+      "passed": true,
+      "error": ""
+    }
+  ]
+}

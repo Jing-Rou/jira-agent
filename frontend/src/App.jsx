@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Bot, Clock3, Loader2, MessageSquareText, RefreshCcw, Send, Server, Sparkles, UserRound } from "lucide-react";
+import { Bot, CheckCircle2, Clock3, Lightbulb, ListChecks, Loader2, MessageSquareText, RefreshCcw, Send, Server, Sparkles, Ticket, UserRound } from "lucide-react";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
@@ -11,9 +11,8 @@ function apiUrl(path) {
 
 const suggestions = [
   "Search ticket SCRUM-5",
-  "How many tasks are in status DONE in project SCRUM?",
+  "How many tasks are in status to do in project SCRUM?",
   "Create a new task in project SCRUM with description 'This is a test.'",
-  "Find related tickets for SCRUM-12",
   "Triage SCRUM-7",
 ];
 
@@ -101,11 +100,188 @@ function parseAgentOutput(text) {
   };
 }
 
-function FormattedAgentOutput({ text }) {
+function TriageResult({ triage }) {
+  const stories = toBullets(triage.user_stories || "");
+  const criteria = toBullets(triage.acceptance_criteria || "");
+  const priority = (triage.priority || "Unassigned").trim();
+
+  return (
+    <section className="triage-result">
+      <header className="triage-result-header">
+        <div className="triage-title">
+          <span className="triage-icon"><Ticket size={17} /></span>
+          <div>
+            <p>Triage complete</p>
+            <h3>{triage.ticket_key}</h3>
+          </div>
+        </div>
+        <strong className={`priority-pill priority-${priority.toLowerCase()}`}>
+          {priority}
+        </strong>
+      </header>
+
+      {stories.length > 0 && (
+        <div className="triage-block">
+          <div className="triage-block-title">
+            <ListChecks size={16} />
+            <h4>User stories</h4>
+          </div>
+          <ul>
+            {stories.map((story, index) => (
+              <li key={`story-${index}`}>{story}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {criteria.length > 0 && (
+        <div className="triage-block">
+          <div className="triage-block-title">
+            <CheckCircle2 size={16} />
+            <h4>Acceptance criteria</h4>
+          </div>
+          <ul className="criteria-list">
+            {criteria.map((criterion, index) => (
+              <li key={`criterion-${index}`}>{criterion}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {triage.thought && (
+        <div className="triage-reasoning">
+          <div className="triage-block-title">
+            <Lightbulb size={16} />
+            <h4>Reasoning</h4>
+          </div>
+          <p>{triage.thought}</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function renderInlineMarkdown(text) {
+  return text
+    .split(/(\*\*.*?\*\*|`.*?`)/g)
+    .filter(Boolean)
+    .map((part, index) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return <strong key={`${part}-${index}`}>{part.slice(2, -2)}</strong>;
+      }
+
+      if (part.startsWith("`") && part.endsWith("`")) {
+        return <code key={`${part}-${index}`}>{part.slice(1, -1)}</code>;
+      }
+
+      return part;
+    });
+}
+
+function MarkdownOutput({ text }) {
+  const lines = normalizeOutputText(text).split("\n");
+  const blocks = [];
+  let paragraph = [];
+  let list = [];
+  let listType = null;
+  let numberCounter = 1
+
+  function flushParagraph() {
+    if (!paragraph.length) return;
+    const content = paragraph.join(" ").trim();
+    if (content) blocks.push({ type: "paragraph", content });
+    paragraph = [];
+  }
+
+  function flushList() {
+    if (!list.length) return;
+    if (listType === "numbers") {
+      block.startAt = numberCounter; 
+      numberCounter += list.length;   
+    }
+    blocks.push({ type: listType, items: list });
+    list = [];
+    listType = null;
+  }
+
+  lines.forEach((rawLine) => {
+    const line = rawLine.trim();
+
+    if (!line) {
+      flushParagraph();
+      flushList();
+      return;
+    }
+
+    const heading = line.match(/^(#{1,4})\s+(.+)$/);
+    const boldHeading = line.match(/^\*\*(.+?)\*\*:?$/);
+    const bullet = line.match(/^[-*•]\s+(.+)$/);
+    const numbered = line.match(/^\d+[.)]\s+(.+)$/);
+
+    if (/^-{3,}$/.test(line)) {
+      flushParagraph();
+      flushList();
+      blocks.push({ type: "divider" });
+    } else if (heading || boldHeading) {
+      flushParagraph();
+      flushList();
+      blocks.push({
+        type: "heading",
+        level: heading ? heading[1].length : 3,
+        content: heading ? heading[2] : boldHeading[1],
+      });
+    } else if (bullet || numbered) {
+      flushParagraph();
+      const nextType = bullet ? "bullets" : "numbers";
+      if (listType && listType !== nextType) flushList();
+      listType = nextType;
+      list.push((bullet || numbered)[1]);
+    } else {
+      flushList();
+      paragraph.push(line);
+    }
+  });
+
+  flushParagraph();
+  flushList();
+
+  return (
+    <div className="markdown-output">
+      {blocks.map((block, index) => {
+        if (block.type === "divider") {
+          return <hr key={`divider-${index}`} />;
+        }
+
+        if (block.type === "heading") {
+          const Heading = block.level <= 2 ? "h3" : "h4";
+          return <Heading key={`heading-${index}`}>{renderInlineMarkdown(block.content)}</Heading>;
+        }
+
+        if (block.type === "bullets" || block.type === "numbers") {
+          const List = block.type === "numbers" ? "ol" : "ul";
+          const startProp = block.type === "numbers" ? { start: block.startAt } : {};
+          return (
+            <List key={`list-${index}`} {...startProp}>
+              {block.items.map((item, itemIndex) => (
+                <li key={`${item}-${itemIndex}`}>{renderInlineMarkdown(item)}</li>
+              ))}
+            </List>
+          );
+        }
+
+        return <p key={`paragraph-${index}`}>{renderInlineMarkdown(block.content)}</p>;
+      })}
+    </div>
+  );
+}
+
+function FormattedAgentOutput({ text, triage }) {
+  if (triage) return <TriageResult triage={triage} />;
+
   const normalizedText = normalizeOutputText(text);
   const parsed = parseAgentOutput(normalizedText);
 
-  if (!parsed) return <pre>{normalizedText}</pre>;
+  if (!parsed) return <MarkdownOutput text={normalizedText} />;
 
   return (
     <div className="formatted-output">
@@ -263,6 +439,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
   const [pendingDraft, setPendingDraft] = useState(null);
+  const [threadId, setThreadId] = useState(null);
 
   async function checkHealth() {
     try {
@@ -310,10 +487,16 @@ export default function App() {
       const response = await fetch(apiUrl("/triage/jira-agent/"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ request: trimmed }),
+        body: JSON.stringify({
+          request: trimmed,
+          ...(threadId ? { thread_id: threadId } : {}),
+        }),
       });
       // const data = await response.json();
       const data = await readApiResponse(response);
+      if (response.ok && data.thread_id) {
+        setThreadId(data.thread_id);
+      }
 
       if (response.ok && (data.function === "draft_issue" )) {
         // store the draft, don't treat it as a finished message
@@ -328,6 +511,10 @@ export default function App() {
             text: data.output,
             time: nowLabel(),
             draft,
+            triage:
+              data.function === "generate_triage"
+                ? data.triage
+                : null,
             functionName: data.function,
           },
         ]);
@@ -342,6 +529,10 @@ export default function App() {
             role: "assistant", 
             text: assistantText, 
             time: nowLabel(), 
+            triage:
+              data.function === "generate_triage"
+                ? data.triage
+                : null,
             error: !response.ok },
         ]);
 
@@ -387,6 +578,7 @@ export default function App() {
           role: "assistant", 
           text: assistantText, 
           time: nowLabel(), 
+          triage: response.ok && data.type === "issue_created_and_triaged" ? data.details : null,
           error: !response.ok },
       ]);
 
@@ -488,7 +680,7 @@ export default function App() {
                     <time><Clock3 size={12} /> {item.time}</time>
                   </div>
                   {item.role === "assistant" ? (
-                    <FormattedAgentOutput text={item.text} />
+                    <FormattedAgentOutput text={item.text} triage={item.triage} />
                   ) : (
                     <pre>{item.text}</pre>
                   )}
@@ -538,4 +730,3 @@ export default function App() {
     </main>
   );
 }
-

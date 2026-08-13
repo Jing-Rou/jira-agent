@@ -19,4 +19,4 @@ COPY jiraAgent/ /app/
 # Expose port 8000 for the Django application to be accessible from outside the container.
 EXPOSE 8000
 # command runs the Django application when the container starts.
-CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000 --noreload"]

@@ -15,6 +15,11 @@ class BaseClient(Protocol):
         params: dict | None = None,
     ) -> dict: ...
 
+class JiraAPIError(RuntimeError):
+    def __init__(self, message: str, status_code: int | None = None):
+        super().__init__(message)
+        self.status_code = status_code  
+
 @dataclass
 class JiraClient:
     base_url: str
@@ -39,8 +44,31 @@ class JiraClient:
                 )
                 resp.raise_for_status()
                 return resp.json()
-        except Exception as e:
-            logger.error(f"jira get error: {e}")
+        except httpx.HTTPStatusError as error:
+            status_code = error.response.status_code
+            response_text = error.response.text[:500]
+
+            logger.error(
+                "Jira GET failed: endpoint=%s status=%s response=%s",
+                endpoint,
+                status_code,
+                response_text,
+            )
+
+            raise JiraAPIError(
+                f"Jira returned HTTP {status_code}.",
+                status_code=status_code,
+            ) from error
+
+        except httpx.RequestError as error:
+            logger.exception(
+                "Could not connect to Jira: endpoint=%s",
+                endpoint,
+            )
+
+            raise JiraAPIError(
+                "Could not connect to Jira."
+            ) from error
 
     async def post(
         self,
@@ -66,8 +94,31 @@ class JiraClient:
                 if resp.content:
                     return resp.json()
                 return {}
-        except Exception as e:
-            logger.error(f"jira post error: {e}")
+        except httpx.HTTPStatusError as error:
+            status_code = error.response.status_code
+            response_text = error.response.text[:500]
+
+            logger.error(
+                "Jira POST failed: endpoint=%s status=%s response=%s",
+                endpoint,
+                status_code,
+                response_text,
+            )
+
+            raise JiraAPIError(
+                f"Jira returned HTTP {status_code}.",
+                status_code=status_code,
+            ) from error
+
+        except httpx.RequestError as error:
+            logger.exception(
+                "Could not connect to Jira: endpoint=%s",
+                endpoint,
+            )
+
+            raise JiraAPIError(
+                "Could not connect to Jira."
+            ) from error
 
     @staticmethod
     def extract_description_text(description: dict) -> str:

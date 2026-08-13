@@ -5,8 +5,10 @@ from rest_framework.views import APIView
 from rest_framework import status
 
 from triage import serializers
-from model import langgraph_react_agent
+from model.agent import invoke as invoke_jira_agent
+from model.tools import generate_triage_data
 from jiraToolWrapper.server import jira
+from jiraToolWrapper.jira_client import JiraAPIError
 from jiraToolWrapper.tools.add_issue_comment import add_issue_comment
 from jiraToolWrapper.tools.create_issue import create_issue
 from jiraToolWrapper.tools.create_issue_link import create_issue_link
@@ -19,7 +21,7 @@ def create_and_triage_issue(summary, description, work_type, project_key=None):
     if not ticket_key:
         raise ValueError(f"Jira did not return a ticket key: {issue}")
 
-    triage_result = langgraph_react_agent.generate_triage(ticket_key)
+    triage_result = generate_triage_data(ticket_key)
     output = (
         f"Created and triaged {ticket_key}.\n\n"
         f"Generated Jira comment:\n{triage_result['comment']}"
@@ -35,21 +37,36 @@ class JiraAgentApiView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         user_request = serializer.validated_data.get("request")
+        thread_id = serializer.validated_data.get("thread_id")
 
         try:
-            result = langgraph_react_agent.invoke(user_request)
+            result = invoke_jira_agent(user_request=user_request, thread_id=thread_id)
 
-            return Response({
-                "function": result.get("function"),
-                "output": result.get("output"),
-                "agent_trace": result.get("agent_trace", []),
-                "details": result.get("details", {}),
-                "draft": result.get("draft"),   
-            }, status=status.HTTP_200_OK)
+            return Response(
+                {
+                    "function": result.get("function"),
+                    "output": result.get("output", ""),
+                    "draft": result.get("draft"),
+                    "triage": result.get("triage"),
+                    "agent_trace": result.get("agent_trace", []),
+                    "thread_id": result.get("thread_id"),
+                }, 
+                status=status.HTTP_200_OK
+            )
 
-        except Exception as e:
-            print(f"ERROR LangGraph JiraAgentApiView: {e}")
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except JiraAPIError as error:
+            return Response(
+                {
+                    "error": str(error),
+                    "type": "jira_api_error",
+                },
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+        except Exception as error:
+            return Response(
+                {"error": str(error), "type": "agent_error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 class ConfirmedJiraAction(APIView):
     """Executes a write action only after the user confirms a draft."""

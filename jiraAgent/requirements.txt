@@ -14,4 +14,12 @@ python-dotenv>=1.2.2
 requests>=2.34.2
 uvicorn>=0.49.0
 langgraph>=1.0.0
+chromadb
+llama-index-core
+llama-index-embeddings-ollama
+llama-index-llms-ollama
+llama-index-readers-file
+llama-index-retrievers-bm25
+llama-index-vector-stores-chroma
+pymupdf
 

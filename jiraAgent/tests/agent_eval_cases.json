@@ -1,0 +1,58 @@
+[
+  {
+    "id": "get-issue",
+    "input": "Show me the details of SCRUM-7",
+    "expected_tool": "get_issue_detail",
+    "expected_arguments": {
+      "ticket_key": "SCRUM-7"
+    },
+    "write_allowed": false
+  },
+  {
+    "id": "count-issues",
+    "input": "How many unresolved Jira tickets are in project SCRUM?",
+    "expected_tool": "count_jira_tickets",
+    "expected_arguments": {
+      "project_key": "SCRUM"
+    },
+    "write_allowed": false
+  },
+  {
+    "id": "search-issues",
+    "input": "Find all To Do tickets in project SCRUM",
+    "expected_tool": "search_jira_tickets",
+    "expected_arguments": {
+      "project_key": "SCRUM",
+      "status": "To Do"
+    },
+    "write_allowed": false
+  },
+  {
+    "id": "triage-issue",
+    "input": "Triage SCRUM-7",
+    "expected_tool": "generate_triage",
+    "expected_arguments": {
+      "ticket_key": "SCRUM-7"
+    },
+    "write_allowed": false
+  },
+  {
+    "id": "draft-issue",
+    "input": "Create a bug in SCRUM because the database connection fails during startup",
+    "expected_tool": "draft_issue",
+    "required_arguments": [
+      "user_request"
+    ],
+    "expect_valid_draft": true,
+    "write_allowed": false
+  },
+  {
+    "id": "knowledge-search",
+    "input": "According to the uploaded documentation, how does hybrid RAG retrieval work?",
+    "expected_tool": "search_knowledge_base",
+    "required_arguments": [
+      "query"
+    ],
+    "write_allowed": false
+  }
+]

@@ -9,12 +9,34 @@ services:
     environment:
       DJANGO_DEBUG: "True"
       DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0,backend"
+      AGENT_DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/jira_agent?sslmode=disable"
       # If Ollama runs on your Windows host, containers must use host.docker.internal.
       LLM_BASE_URL: "http://host.docker.internal:11434"
+      RAG_OLLAMA_URL: "http://host.docker.internal:11434"
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "8000:8000"
     volumes:
       - ./jiraAgent/db.sqlite3:/app/db.sqlite3
+      - ./jiraAgent/model/docs:/app/model/docs
+      - ./jiraAgent/kb_storage:/app/kb_storage
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: jira-agent-postgres
+    environment:
+      POSTGRES_DB: jira_agent
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgress
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d jira_agent"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - agent_postgres_data:/var/lib/postgresql/data
 
   frontend:
     build:
@@ -25,3 +47,6 @@ services:
       - backend
     ports:
       - "5173:3000"
+
+volumes:
+  agent_postgres_data:

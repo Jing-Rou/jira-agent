@@ -5,11 +5,12 @@ import requests
 from typing                                     import Union, Optional
 from functools                                  import lru_cache
 from model.system_prompts                       import PROMPTS as system_prompts
+from pathlib import Path
 
 from dotenv import load_dotenv
 load_dotenv()
 
-PROMPTS_PATH = "model/prompts.json"
+PROMPTS_PATH = Path(__file__).resolve().parent / "prompts.json"
 
 # lru_cache means remember the result of a function so Python does not run it again unnecessarily.
 @lru_cache(maxsize=1)
@@ -21,7 +22,7 @@ def _load_example_prompts() -> dict:
     
 class LLM_Model():
     def __init__(self, 
-                 system_key: str, 
+                 system_key: str | None = None,
                  examples_key: str | None = None,):
         
         self.base_url = os.getenv("LLM_BASE_URL")
@@ -105,7 +106,7 @@ class LLM_Model():
 
         return result["message"]["content"]
 
-reAct_agent_model    = LLM_Model(system_key="agent_system_prompt")
+# reAct_agent_model    = LLM_Model(system_key="agent_system_prompt")
 create_issue_model   = LLM_Model(system_key="system_prompt_create_issue",   examples_key="examples_create_issue")
 product_model        = LLM_Model(system_key="system_prompt_product",        examples_key="examples_product")
-linking_model        = LLM_Model(system_key="system_prompt_linking",        examples_key="examples_linking")
+# linking_model        = LLM_Model(system_key="system_prompt_linking",        examples_key="examples_linking")

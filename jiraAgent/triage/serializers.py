@@ -8,4 +8,5 @@ class ModelRequestSerializer(serializers.Serializer):
             "blank": "request field cannot be blank.",
             }
         )
+    thread_id = serializers.CharField(required=False, allow_blank=False)
 
