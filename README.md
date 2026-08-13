@@ -1,8 +1,17 @@
 # Jira Agent
 
-An AI-powered assistant that automates Jira ticket triage, issue creation, and ticket management using a local LLM. Intelligently classify incoming tickets, generate user stories and acceptance criteria, and streamline your team's ticket workflow.
+An AI-powered Jira assistant with Agentic RAG. It uses a local LLM to retrieve live Jira data, search internal PDF knowledge bases, and provide grounded guidance for ticket investigation and implementation.
+The agent can triage tickets, search and filter issues, create confirmation-based Jira drafts, and combine Jira issue details with relevant document knowledge to suggest solutions.
 
 ## Demo
+
+### **Agentic RAG**
+- Uses LangGraph to route requests to Jira tools, the knowledge base, or both.
+- Retrieves PDF knowledge using hybrid Chroma vector search and BM25 keyword search.
+- Generates grounded implementation guidance from relevant document content.
+- Supports combined flows: retrieve Jira details first, then find relevant knowledge-base guidance.
+- Returns a clear fallback when no relevant document guidance is found.
+<img src="img\kb_search.png" alt="Jira Agent demo" width="900">
 
 #### **Ticket Triage**
 - Automatically analyze ticket descriptions and generate:
@@ -28,14 +37,6 @@ An AI-powered assistant that automates Jira ticket triage, issue creation, and t
 - Requires user confirmation before creating the issue in Jira.
 <img src="img\create_ticket.png" alt="Jira Agent demo" width="900">
 <img src="img\triage_created_ticket.png" alt="Jira Agent demo" width="900">
-
-### **Agentic RAG**
-- Uses LangGraph to route requests to Jira tools, the knowledge base, or both.
-- Retrieves PDF knowledge using hybrid Chroma vector search and BM25 keyword search.
-- Generates grounded implementation guidance from relevant document content.
-- Supports combined flows: retrieve Jira details first, then find relevant knowledge-base guidance.
-- Returns a clear fallback when no relevant document guidance is found.
-<img src="img\kb_search.png" alt="Jira Agent demo" width="900">
 ---
 
 ## 📋 Prerequisites
