@@ -39,11 +39,11 @@ class PDFKnowledgeBase:
 
     def __init__(
         self,
-        embed_model: str,
-        llm_model: str,
-        RAG_OLLAMA_URL: str,
-        chunk_size: int,
-        chunk_overlap: int,
+        embed_model: str = os.getenv("EMBEDDING_MODEL"),
+        llm_model: str = os.getenv("LLM_MODEL"),
+        RAG_OLLAMA_URL: str = os.getenv("RAG_OLLAMA_URL"),
+        chunk_size: int = 768,
+        chunk_overlap: int = 100,
         storage_dir: str | Path | None = None,
     ) -> None:
         api_key = os.getenv("OLLAMA_API_KEY")
