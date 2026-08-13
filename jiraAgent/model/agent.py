@@ -33,8 +33,8 @@ def get_graph_closure() -> Callable:
 
     # Initialise ChatWatsonx
     llm_model = ChatOllama(
-        model=os.getenv("LLM_MODEL", "qwen3:8b"),
-        base_url=os.getenv("LLM_BASE_URL", "http://localhost:11434"),
+        model=os.getenv("LLM_MODEL"),
+        base_url=os.getenv("LLM_BASE_URL"),
         temperature=0,
         request_timeout=300.0,
     )
