@@ -27,9 +27,6 @@ from llama_index.core.response_synthesizers import get_response_synthesizer
 from llama_index.core.schema import NodeWithScore, TextNode
 from llama_index.core.indices.query.query_transform.base import HyDEQueryTransform
 # from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-import logging
-import time
-logger = logging.getLogger(__name__)
 
 INSUFFICIENT_CONTEXT = "INSUFFICIENT_CONTEXT"
 
@@ -49,14 +46,6 @@ class PDFKnowledgeBase:
         chunk_overlap: int = 100,
         storage_dir: str | Path | None = None,
     ) -> None:
-        logger.info(
-            "KB configured: embedding_model=%s llm_model=%s base_url=%s storage_dir=%s",
-            embed_model,
-            llm_model,
-            RAG_OLLAMA_URL,
-            self.storage_dir,
-        )
-        
         api_key = os.getenv("OLLAMA_API_KEY")
         headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
 
@@ -372,10 +361,7 @@ def initialize(source: str | Path | None = None) -> int:
 def initialize_documents() -> int:
     """Load every configured PDF once when the agent process starts."""
     global _kb
-    started_at = time.monotonic()
     sources = _configured_sources()
-    logger.info("KB initialization started; sources=%s", sources)
-
     if not sources:
         raise KnowledgeBaseNotInitialized(
             "No PDFs were found. Add PDFs to model/docs or set RAG_PDF_SOURCES."
