@@ -10,13 +10,11 @@ from langchain.agents import create_agent
 from langchain_ollama import ChatOllama
 from langchain_core.messages import AIMessage, ToolMessage
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.checkpoint.postgres import PostgresSaver
 from model.tools import TOOLS
 
 from langfuse import get_client, propagate_attributes
 from langfuse.langchain import CallbackHandler
 from openinference.instrumentation.llama_index import LlamaIndexInstrumentor
-from tests.LLM_as_judge import _score_faithfulness_async
 
 from dotenv import load_dotenv
 load_dotenv()
