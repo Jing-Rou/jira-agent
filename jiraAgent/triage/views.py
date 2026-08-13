@@ -5,8 +5,6 @@ from rest_framework.views import APIView
 from rest_framework import status
 
 from triage import serializers
-from model.agent import invoke as invoke_jira_agent
-from model.tools import generate_triage_data
 from jiraToolWrapper.server import jira
 from jiraToolWrapper.jira_client import JiraAPIError
 from jiraToolWrapper.tools.add_issue_comment import add_issue_comment
@@ -15,6 +13,8 @@ from jiraToolWrapper.tools.create_issue_link import create_issue_link
 
 
 def create_and_triage_issue(summary, description, work_type, project_key=None):
+    from model.tools import generate_triage_data
+
     issue = asyncio.run(create_issue(summary, description, work_type, project_key))
     ticket_key = issue.get("key") if isinstance(issue, dict) else None
 
@@ -31,6 +31,8 @@ def create_and_triage_issue(summary, description, work_type, project_key=None):
 class JiraAgentApiView(APIView):
 
     def post(self, request):
+        from model.agent import invoke as invoke_jira_agent
+
         serializer = serializers.ModelRequestSerializer(data=request.data)
 
         if not serializer.is_valid():
@@ -152,6 +154,7 @@ class ConfirmedJiraAction(APIView):
 class HealthCheck(APIView):
     def get(self, request):
         """Healthcheck endpoint"""
+        print(f"data: {request.data.get('function_name')}")
         return Response({'message': 'ONLINE'})
     
 # async def transition_issue_to_status(issue_key, target_status):

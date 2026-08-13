@@ -4,6 +4,7 @@ An AI-powered Jira assistant with Agentic RAG. It uses a local LLM to retrieve l
 The agent can triage tickets, search and filter issues, create confirmation-based Jira drafts, and combine Jira issue details with relevant document knowledge to suggest solutions.
 
 ## Demo
+https://jira-agent-two.vercel.app/
 
 ### **Agentic RAG**
 - Uses LangGraph to route requests to Jira tools, the knowledge base, or both.
