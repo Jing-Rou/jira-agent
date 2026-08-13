@@ -27,4 +27,4 @@ llama-index-retrievers-bm25
 llama-index-vector-stores-chroma
 pymupdf
 atlassian-python-api
-llama-index-embeddings-huggingface
+# llama-index-embeddings-huggingface
