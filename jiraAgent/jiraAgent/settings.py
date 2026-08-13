@@ -37,8 +37,8 @@ CORS_ALLOWED_ORIGINS = [origin.strip()
     ).split(',')
     if origin.strip()
 ]
-CORS_ALLOW_ALL_ORIGINS = True
-print("CORS origins loaded:", CORS_ALLOWED_ORIGINS)
+# CORS_ALLOW_ALL_ORIGINS = True
+# print("CORS origins loaded:", CORS_ALLOWED_ORIGINS)
 
 # Application definition
 INSTALLED_APPS = [
