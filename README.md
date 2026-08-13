@@ -2,7 +2,10 @@
 
 An AI-powered assistant that automates Jira ticket triage, issue creation, and ticket management using a local LLM. Intelligently classify incoming tickets, generate user stories and acceptance criteria, and streamline your team's ticket workflow.
 
+## Demo
 
+![Jira Agent demo]
+<img src="img\triage_ticket.png" alt="Jira Agent demo" width="900">
 
 ## ✨ Features
 
