@@ -1,6 +1,8 @@
 import os
 import traceback
 import json
+import logging
+logger = logging.getLogger(__name__)
 
 from typing import Callable
 from uuid import uuid4
@@ -252,8 +254,15 @@ def invoke(user_request: str, thread_id: str | None = None) -> dict:
     # # NEW — online evaluation: score THIS live trace, not a batch dataset
     # if contexts and trace_id:
     #     _score_faithfulness_async(trace_id=trace_id, answer=final_output, contexts=contexts)
-    print("FINAL MESSAGE:", final_message)
-    print("FINAL OUTPUT:", final_output)
+    logger.info("Agent message type=%s", type(message).__name__)
+
+    logger.info(
+        "Tool result name=%s output=%s",
+        message.name,
+        json.dumps(tool_output, default=str)[:2000],
+    )
+
+    logger.info("Final agent output=%s", final_output[:2000])
 
     return {
         "function": function_name,

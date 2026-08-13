@@ -1,5 +1,7 @@
 import asyncio
 import traceback
+import logging
+logger = logging.getLogger(__name__)
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -34,6 +36,8 @@ class JiraAgentApiView(APIView):
     def post(self, request):
         from model.agent import invoke as invoke_jira_agent
 
+        logger.info("Jira agent request received")
+
         serializer = serializers.ModelRequestSerializer(data=request.data)
 
         if not serializer.is_valid():
@@ -42,9 +46,19 @@ class JiraAgentApiView(APIView):
         user_request = serializer.validated_data.get("request")
         thread_id = serializer.validated_data.get("thread_id")
 
+        logger.info(
+            "Invoking agent thread_id=%s request=%r",
+            thread_id,
+            user_request[:500],
+        )
+            
         try:
             result = invoke_jira_agent(user_request=user_request, thread_id=thread_id)
-            print("Agent result:", result)
+            logger.info(
+                "Agent completed thread_id=%s tools=%s",
+                result.get("thread_id"),
+                [item.get("function") for item in result.get("agent_trace", [])],
+            )
 
             return Response(
                 {

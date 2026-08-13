@@ -49,6 +49,14 @@ class PDFKnowledgeBase:
         api_key = os.getenv("OLLAMA_API_KEY")
         headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
 
+        # from langchain_ibm import WatsonxEmbeddings
+        # embeddings = WatsonxEmbeddings(
+        #     model_id=EmbeddingTypes.IBM_SLATE_30M_ENG.value,
+        #     url=credentials["url"],
+        #     apikey=credentials["apikey"],
+        #     project_id=project_id,
+        # )
+
         # self.embed_model = HuggingFaceEmbedding(model_name=embed_model)
 
         self.embed_model = OllamaEmbedding(
