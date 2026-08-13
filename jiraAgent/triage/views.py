@@ -43,6 +43,7 @@ class JiraAgentApiView(APIView):
 
         try:
             result = invoke_jira_agent(user_request=user_request, thread_id=thread_id)
+            print("Agent result:", result)
 
             return Response(
                 {

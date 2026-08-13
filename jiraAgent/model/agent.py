@@ -30,6 +30,12 @@ def get_graph_closure() -> Callable:
 
     # document_count = initialize_documents()
     # print(f"Knowledge base ready: {document_count} PDF chunks loaded")
+    api_key = os.getenv("OLLAMA_API_KEY")
+    client_kwargs = (
+        {"headers": {"Authorization": f"Bearer {api_key}"}}
+        if api_key
+        else {}
+    )
 
     # Initialise ChatWatsonx
     llm_model = ChatOllama(
@@ -37,6 +43,8 @@ def get_graph_closure() -> Callable:
         base_url=os.getenv("LLM_BASE_URL"),
         temperature=0,
         request_timeout=300.0,
+        client_kwargs=client_kwargs,
+        async_client_kwargs=client_kwargs,
     )
 
     # Define system prompt
