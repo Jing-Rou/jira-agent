@@ -22,6 +22,7 @@ jiraAgent/jiraToolWrapper/logs/*.log
 frontend/vite.err.log
 frontend/vite.out.log
 
+azure_test.py
 langgraph_react_agent.py
 main.py
 jiraAgent/jiraToolWrapper/tools/add_issue_comment.py

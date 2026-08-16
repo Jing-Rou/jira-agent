@@ -27,4 +27,7 @@ llama-index-retrievers-bm25
 llama-index-vector-stores-chroma
 pymupdf
 atlassian-python-api
-# llama-index-embeddings-huggingface
+langchain-ibm
+ibm-watsonx-ai
+azure-ai-projects>=2.3.0
+llama-index-embeddings-jinaai

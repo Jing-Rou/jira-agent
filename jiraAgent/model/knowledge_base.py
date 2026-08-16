@@ -26,7 +26,7 @@ from llama_index.core import PromptTemplate
 from llama_index.core.response_synthesizers import get_response_synthesizer
 from llama_index.core.schema import NodeWithScore, TextNode
 from llama_index.core.indices.query.query_transform.base import HyDEQueryTransform
-# from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.embeddings.jinaai import JinaEmbedding
 
 INSUFFICIENT_CONTEXT = "INSUFFICIENT_CONTEXT"
 
@@ -49,21 +49,17 @@ class PDFKnowledgeBase:
         api_key = os.getenv("OLLAMA_API_KEY")
         headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
 
-        # from langchain_ibm import WatsonxEmbeddings
-        # embeddings = WatsonxEmbeddings(
-        #     model_id=EmbeddingTypes.IBM_SLATE_30M_ENG.value,
-        #     url=credentials["url"],
-        #     apikey=credentials["apikey"],
-        #     project_id=project_id,
+        self.embed_model = JinaEmbedding(
+            api_key=os.environ["JINA_API_KEY"],
+            model="jina-embeddings-v3",
+        )
+        
+        # self.embed_model = OllamaEmbedding(
+        #     model_name=embed_model,
+        #     base_url=RAG_OLLAMA_URL,
+        #     client_kwargs={"headers": headers} if headers else None,
         # )
 
-        # self.embed_model = HuggingFaceEmbedding(model_name=embed_model)
-
-        self.embed_model = OllamaEmbedding(
-            model_name=embed_model,
-            base_url=RAG_OLLAMA_URL,
-            client_kwargs={"headers": headers} if headers else None,
-        )
         self.llm = Ollama(
             model=llm_model,
             base_url=RAG_OLLAMA_URL,

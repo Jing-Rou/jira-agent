@@ -134,7 +134,7 @@ def invoke_agent(
         "metadata": {
             "request_id": request_id,
         },
-        "recursion_limit": 10,
+        "recursion_limit": 25,
     }
 
     trace_id = None
